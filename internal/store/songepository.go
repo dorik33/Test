@@ -18,6 +18,10 @@ var (
 
 func (r *SongRepository) GetSongs(ctx context.Context, group, song string, limit, offset int) ([]models.Song, error) {
 	query := "SELECT * FROM songs WHERE group_name LIKE $1 AND song_name LIKE $2 LIMIT $3 OFFSET $4;"
+
+	r.store.logger.Debugf("Executing query: %s with params: group='%s', song='%s', limit=%d, offset=%d",
+		query, group, song, limit, offset)
+
 	rows, err := r.store.pool.Query(ctx, query, "%"+group+"%", "%"+song+"%", limit, offset)
 	if err != nil {
 		return nil, err
@@ -38,6 +42,9 @@ func (r *SongRepository) GetSongs(ctx context.Context, group, song string, limit
 
 func (r *SongRepository) GetSongTextByID(ctx context.Context, songID int) (string, error) {
 	query := "SELECT text FROM songs WHERE id = $1;"
+
+	r.store.logger.Debugf("Executing query: %s with params: songID=%d", query, songID)
+
 	row := r.store.pool.QueryRow(ctx, query, songID)
 	var text string
 	err := row.Scan(&text)
@@ -52,6 +59,9 @@ func (r *SongRepository) GetSongTextByID(ctx context.Context, songID int) (strin
 
 func (r *SongRepository) DeleteSong(ctx context.Context, songID int) error {
 	query := "DELETE FROM songs WHERE id = $1;"
+
+	r.store.logger.Debugf("Executing query: %s with params: songID=%d", query, songID)
+
 	res, err := r.store.pool.Exec(ctx, query, songID)
 	if err != nil {
 		return err
@@ -65,6 +75,10 @@ func (r *SongRepository) DeleteSong(ctx context.Context, songID int) error {
 
 func (r *SongRepository) UpdateSong(ctx context.Context, id int, song models.Song) error {
 	query := "UPDATE songs SET group_name = $1, song_name = $2, release_date = $3, text = $4, link = $5 WHERE id = $6"
+
+	r.store.logger.Debugf("Executing query: %s with params: group='%s', song='%s', date=%v, text='%s', link='%s', id=%d",
+		query, song.GroupName, song.SongName, song.ReleaseDate, song.Text, song.Link, id)
+
 	res, err := r.store.pool.Exec(ctx, query, song.GroupName, song.SongName, song.ReleaseDate, song.Text, song.Link, id)
 	if res.RowsAffected() == 0 {
 		return ErrSongNotFound
@@ -74,6 +88,10 @@ func (r *SongRepository) UpdateSong(ctx context.Context, id int, song models.Son
 
 func (r *SongRepository) AddSong(ctx context.Context, song models.Song) error {
 	query := "INSERT INTO songs (group_name, song_name, release_date, text, link) VALUES ($1, $2, $3, $4, $5)"
+
+	r.store.logger.Debugf("Executing query: %s with params: group='%s', song='%s', date=%v, text='%s', link='%s'",
+		query, song.GroupName, song.SongName, song.ReleaseDate, song.Text, song.Link)
+
 	_, err := r.store.pool.Exec(ctx, query, song.GroupName, song.SongName, song.ReleaseDate, song.Text, song.Link)
 	return err
 }
