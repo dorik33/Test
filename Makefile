@@ -1,4 +1,3 @@
-# Makefile
 .PHONY: up down migrate swag
 
 up:
