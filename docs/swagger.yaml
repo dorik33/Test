@@ -1,0 +1,221 @@
+basePath: /
+definitions:
+  api.Message:
+    description: Error response structure
+    properties:
+      is_error:
+        type: boolean
+      message:
+        type: string
+      status_code:
+        type: integer
+    type: object
+  models.Song:
+    properties:
+      group:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
+    type: object
+  models.SongRequest:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
+  models.SongText:
+    properties:
+      text:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for managing songs
+  title: Music API
+  version: "1.0"
+paths:
+  /song:
+    post:
+      consumes:
+      - application/json
+      description: Add new song to database
+      parameters:
+      - description: Song request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SongRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Message'
+      summary: Add new song
+      tags:
+      - songs
+  /song/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete song by ID
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Message'
+      summary: Delete song
+      tags:
+      - songs
+    put:
+      consumes:
+      - application/json
+      description: Update existing song
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Song data
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Message'
+      summary: Update song
+      tags:
+      - songs
+  /songText/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get song lyrics with pagination
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lines limit
+        in: query
+        name: limit
+        type: integer
+      - description: Lines offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SongText'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Message'
+      summary: Get song lyrics
+      tags:
+      - songs
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of songs with filters
+      parameters:
+      - description: Group name filter
+        in: query
+        name: group
+        type: string
+      - description: Song name filter
+        in: query
+        name: song
+        type: string
+      - description: Results limit (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Results offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Song'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Message'
+      summary: Get songs list
+      tags:
+      - songs
+swagger: "2.0"
